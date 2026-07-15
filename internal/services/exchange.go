@@ -26,8 +26,6 @@ func (s ExchangeService) GetByCodes(baseCurrencyCode string, targetCurrencyCode 
 		return models.Exchange{}, err
 	}
 
-	exchange.Rate = helpers.Round(exchange.Rate)
-
 	return exchange, nil
 }
 
