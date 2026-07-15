@@ -53,7 +53,7 @@ func (s ExchangeService) GetByCodesWithRevert(
 	tmp := exchange.BaseCurrency // To not lose the reference to the original BaseCurrency
 	exchange.BaseCurrency = exchange.TargetCurrency
 	exchange.TargetCurrency = tmp
-	exchange.Rate = helpers.Round(1 / exchange.Rate)
+	exchange.Rate = 1 / exchange.Rate
 
 	return exchange, nil
 }
@@ -69,18 +69,18 @@ func (s ExchangeService) GetByForeignRate(
 	exchange := models.Exchange{
 		BaseCurrency:   c1,
 		TargetCurrency: c2,
-		Rate:           helpers.Round(rate),
+		Rate:           rate,
 	}
 
 	return exchange, nil
 }
 
 func (s ExchangeService) Create(baseCurrencyCode string, targetCurrencyCode string, rate float64) (models.Exchange, error) {
-	return s.store.Create(baseCurrencyCode, targetCurrencyCode, helpers.Round(rate))
+	return s.store.Create(baseCurrencyCode, targetCurrencyCode, rate)
 }
 
 func (s ExchangeService) Update(baseCurrencyCode string, targetCurrencyCode string, rate float64) (models.Exchange, error) {
-	return s.store.Update(baseCurrencyCode, targetCurrencyCode, helpers.Round(rate))
+	return s.store.Update(baseCurrencyCode, targetCurrencyCode, rate)
 }
 
 func (s ExchangeService) ConvertAmount(amount float64, rate float64) float64 {

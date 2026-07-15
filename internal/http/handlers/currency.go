@@ -66,13 +66,18 @@ func (h *CurrencyHandler) createNewCurrency(w http.ResponseWriter, r *http.Reque
 	}
 
 	name, code, sign := r.PostForm.Get("name"), r.PostForm.Get("code"), r.PostForm.Get("sign")
-	if name == "" || code == "" || sign == "" {
+	if err := helpers.ValidateEmpty(name, code, sign); err != nil {
 		helpers.SendError(w, "Отсутствует нужное поле формы", http.StatusBadRequest)
 		return
 	}
 
 	if len(code) != 3 {
 		helpers.SendError(w, "Код валюты должен содержать 3 символа", http.StatusBadRequest)
+		return
+	}
+
+	if len(sign) > 3 {
+		helpers.SendError(w, "Символ валюты должен содержать не больше 3 символов", http.StatusBadRequest)
 		return
 	}
 

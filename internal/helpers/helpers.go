@@ -1,10 +1,12 @@
 package helpers
 
 import (
+	http2 "currency-exchanger/internal/http"
 	"encoding/json"
 	"log"
 	"math"
 	"net/http"
+	"strings"
 )
 
 func SendError(w http.ResponseWriter, message string, statusCode int) {
@@ -21,4 +23,16 @@ func SendError(w http.ResponseWriter, message string, statusCode int) {
 
 func Round(x float64) float64 {
 	return math.Round(x*100) / 100
+}
+
+func ValidateEmpty(values ...string) error {
+	for _, v := range values {
+		trimmed := strings.TrimSpace(v)
+
+		if trimmed == "" {
+			return http2.ErrEmptyValue
+		}
+	}
+
+	return nil
 }
