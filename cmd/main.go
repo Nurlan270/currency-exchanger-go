@@ -30,15 +30,23 @@ func main() {
 	// Dependencies
 	currencyHandler, exchangeHandler := registerHandlers(db)
 
-	// HTTP Handlers
-	http.HandleFunc("/currencies", currencyHandler.Currencies)
-	http.HandleFunc("/currency/", currencyHandler.GetCurrency)
-	http.HandleFunc("/exchangeRates", exchangeHandler.Exchanges)
-	http.HandleFunc("/exchangeRate/", exchangeHandler.Exchange)
-	http.HandleFunc("/exchange", exchangeHandler.CalcExchangeRate)
+	mux := http.NewServeMux()
+
+	// API handlers
+	mux.HandleFunc("/currencies", currencyHandler.Currencies)
+	mux.HandleFunc("/currency/", currencyHandler.GetCurrency)
+	mux.HandleFunc("/exchangeRates", exchangeHandler.Exchanges)
+	mux.HandleFunc("/exchangeRate/", exchangeHandler.Exchange)
+	mux.HandleFunc("/exchange", exchangeHandler.CalcExchangeRate)
+
+	// Static assets
+	mux.HandleFunc("/", serveIndex)
+	mux.HandleFunc("/index.html", serveIndex)
+	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))
+	mux.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./js"))))
 
 	fmt.Println("Listening on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
 func registerHandlers(db *sql.DB) (*handlers.CurrencyHandler, *handlers.ExchangeHandler) {
@@ -53,4 +61,13 @@ func registerHandlers(db *sql.DB) (*handlers.CurrencyHandler, *handlers.Exchange
 	exchangeHandler := handlers.NewExchangeHandler(exchangeService)
 
 	return currencyHandler, exchangeHandler
+}
+
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" && r.URL.Path != "/index.html" {
+		http.NotFound(w, r)
+		return
+	}
+
+	http.ServeFile(w, r, "./index.html")
 }
